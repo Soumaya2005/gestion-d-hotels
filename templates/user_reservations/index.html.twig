@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Reservations{% endblock %}
+
+{% block body %}
+<div class="section__container" style="margin-top: 10px;">
+    <div style="margin-bottom: 20px;">
+        <a href="{{ path('app_main') }}">
+            <button type="button" class="go-back-btn">← Go Back</button>
+        </a>
+    </div>
+
+    <h1 class="myres-title" style="margin-top: 0; margin-bottom: 1.2rem;">My Reservations</h1>
+
+    {% if form is defined and form %}
+        
+        {{ form_start(form) }}
+        <div class="reservation-2col-card" style="max-width:500px;margin:0 auto;">
+            <div class="reservation-2col-form">
+            <h2>Edit your reservation</h2>
+                {{ form_row(form.clientName, {'label': 'Your Name', 'attr': {'placeholder': 'Enter your name'}}) }}
+                {{ form_row(form.clientEmail, {'label': 'Your Email', 'attr': {'placeholder': 'Enter your email'}}) }}
+                {{ form_row(form.startDate, {'label': 'Check-in Date'}) }}
+                {{ form_row(form.endDate, {'label': 'Check-out Date'}) }}
+                {{ form_row(form.room, {'label': 'Room'}) }}
+            </div>
+            <div class="reservation-form-actions" style="margin-top:1.7rem;">
+                <button type="submit" class="reservation-btn-main">Save</button>
+                <a href="{{ path('app_user_reservations') }}" class="reservation-btn-cancel">Cancel</a>
+            </div>
+        </div>
+        {{ form_end(form) }}
+    {% endif %}
+
+    {% if reservations is empty %}
+        <p>You have no reservations yet. Ready to book your next stay?</p>
+    {% else %}
+        <table class="myres-table" border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Hotel</th>
+                    <th>Address</th>
+                    <th>Room Number</th>
+                    <th>Room Type</th>
+                    <th>Room Price</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in reservations %}
+                    <tr>
+                        <td>{{ reservation.id }}</td>
+                        <td>{{ reservation.room.hotel.name }}</td>
+                        <td>{{ reservation.room.hotel.address }}</td>
+                        <td>{{ reservation.room.number }}</td>
+                        <td>{{ reservation.room.type }}</td>
+                        <td>${{ reservation.room.price }}</td>
+                        <td>{{ reservation.startDate|date('Y-m-d H:i') }}</td>
+                        <td>{{ reservation.endDate|date('Y-m-d H:i') }}</td>
+                        <td>
+                            <a href="{{ path('app_user_reservations', { edit: reservation.id }) }}">
+                                <button type="button" class="edit-btn">Edit</button>
+                            </a>
+                            <a href="{{ path('app_user_reservations_cancel', { id: reservation.id }) }}"
+                               onclick="return confirm('Are you sure you want to cancel this reservation?');">
+                                <button type="button" class="cancel-btn">Cancel</button>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

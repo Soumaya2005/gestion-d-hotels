@@ -1,0 +1,1152 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Dashboard Styles */
+        /* Analytics Dashboard */
+        .analytics-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .analytics-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .analytics-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .analytics-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(52, 152, 219, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 20px;
+            color: var(--dashboard-primary);
+        }
+        
+        .card-hotels .analytics-card-icon {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--dashboard-primary);
+        }
+        
+        .card-rooms .analytics-card-icon {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+        
+        .card-reservations .analytics-card-icon {
+            background-color: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+        }
+        
+        .card-occupancy .analytics-card-icon {
+            background-color: rgba(232, 37, 116, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .analytics-card-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 3px 0;
+        }
+        
+        .analytics-card-title {
+            font-size: 14px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .analytics-charts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--box-shadow);
+            min-height: 250px;
+            flex: 1;
+            min-width: 350px;
+        }
+        
+        .chart-container h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: var(--dashboard-secondary);
+        }
+        
+        .recent-activity {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .recent-activity h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--dashboard-secondary);
+        }
+        
+        .activity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(52, 152, 219, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--dashboard-primary);
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        @media (max-width: 900px) {
+            .chart-container {
+                min-width: 100%;
+            }
+        }
+        :root {
+          --dashboard-primary: #3498db;
+          --dashboard-secondary: #2c3e50;
+          --dashboard-accent: #e74c3c;
+          --dashboard-light: #ecf0f1;
+          --dashboard-dark: #34495e;
+          --dashboard-text: #333;
+          --dashboard-bg: #f5f7fa;
+          /* Site colors for buttons */
+          --primary-color: #e82574;
+          --primary-color-dark: #bc1c5c;
+          --success-color: #2ecc71;
+          --warning-color: #f39c12;
+          --danger-color: #e74c3c;
+          --text-light: #78716c;
+          --border-radius: 4px;
+          --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* General Layout */
+        body {
+          font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+          line-height: 1.6;
+          color: var(--dashboard-text);
+          background-color: var(--dashboard-bg);
+          margin: 0;
+          padding: 0;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard-wrapper {
+          display: flex;
+          min-height: 100vh;
+          position: relative;
+        }
+        
+        .dashboard-sidebar {
+          width: 250px;
+          background-color: var(--dashboard-secondary);
+          color: white;
+          padding-top: 20px;
+          box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+        }
+        
+        .dashboard-toggle {
+          display: none;
+          position: fixed;
+          top: 10px;
+          left: 10px;
+          z-index: 1000;
+          background-color: var(--dashboard-secondary);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          padding: 8px 12px;
+          cursor: pointer;
+          font-size: 16px;
+        }
+        
+        .dashboard-sidebar-header {
+          padding: 0 20px 20px 20px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          margin-bottom: 20px;
+        }
+        
+        .dashboard-sidebar-header h2 {
+          margin: 0;
+          font-size: 20px;
+          color: white;
+        }
+        
+        .dashboard-nav {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        
+        .dashboard-nav-item {
+          margin-bottom: 5px;
+        }
+        
+        .dashboard-nav-link {
+          display: flex;
+          align-items: center;
+          padding: 12px 20px;
+          color: rgba(255, 255, 255, 0.8);
+          text-decoration: none;
+          transition: all 0.3s ease;
+        }
+        
+        .dashboard-nav-link:hover,
+        .dashboard-nav-link.active {
+          background-color: rgba(255, 255, 255, 0.1);
+          color: white;
+          border-left: 4px solid var(--primary-color);
+        }
+        
+        .dashboard-nav-link i {
+          margin-right: 10px;
+          width: 20px;
+          text-align: center;
+        }
+        
+        .dashboard-main {
+          flex: 1;
+          background-color: var(--dashboard-bg);
+          overflow-y: auto;
+        }
+        
+        .dashboard-container {
+          padding: 20px;
+        }
+        
+        /* Header Styles */
+        .dashboard-header {
+          background-color: var(--dashboard-secondary);
+          color: white;
+          padding: 15px 20px;
+          margin-bottom: 30px;
+          border-radius: var(--border-radius);
+          box-shadow: var(--box-shadow);
+        }
+        
+        .dashboard-header h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        
+        /* Section Styles */
+        .dashboard-section {
+          background-color: white;
+          border-radius: var(--border-radius);
+          box-shadow: var(--box-shadow);
+          margin-bottom: 30px;
+          padding: 20px;
+        }
+        
+        .dashboard-section h2 {
+          color: var(--dashboard-secondary);
+          border-bottom: 2px solid var(--dashboard-light);
+          padding-bottom: 10px;
+          margin-top: 0;
+        }
+        
+        /* Table Styles */
+        .dashboard-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+        }
+        
+        .dashboard-table th {
+          background-color: var(--dashboard-secondary);
+          color: white;
+          text-align: left;
+          padding: 12px;
+        }
+        
+        .dashboard-table td {
+          padding: 10px 12px;
+          border-bottom: 1px solid #ddd;
+        }
+        
+        .dashboard-table tr:nth-child(even) {
+          background-color: #f9f9f9;
+        }
+        
+        .dashboard-table tr:hover {
+          background-color: #f1f1f1;
+        }
+        
+        /* Form Styles */
+        .dashboard-form {
+          margin-bottom: 20px;
+        }
+        
+        .dashboard-form label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: 500;
+          color: var(--dashboard-dark);
+        }
+        
+        .dashboard-form input[type="text"],
+        .dashboard-form input[type="file"],
+        .dashboard-form select,
+        .dashboard-form textarea {
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 15px;
+          border: 1px solid #ddd;
+          border-radius: var(--border-radius);
+          box-sizing: border-box;
+        }
+        
+        .dashboard-form input[type="text"]:focus,
+        .dashboard-form select:focus,
+        .dashboard-form textarea:focus {
+          border-color: var(--primary-color);
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* Search Form */
+        .search-form {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+        }
+        
+        .search-form input {
+          flex: 1;
+          min-width: 150px;
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: var(--border-radius);
+        }
+        
+        /* Button Styles - Using site colors */
+        .btn {
+          display: inline-block;
+          padding: 8px 16px;
+          background-color: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: var(--border-radius);
+          cursor: pointer;
+          text-decoration: none;
+          font-size: 14px;
+          transition: background-color 0.3s ease;
+        }
+        
+        .btn:hover {
+          background-color: var(--primary-color-dark);
+        }
+        
+        .btn-secondary {
+          background-color: var(--text-light);
+        }
+        
+        .btn-secondary:hover {
+          background-color: #5d5853;
+        }
+        
+        /* Boutons d'action uniformisés */
+        .btn-primary, .btn-danger {
+          background-color: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: var(--border-radius);
+          transition: all 0.3s ease;
+          padding: 6px 12px;
+          margin: 0 2px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+        }
+        
+        .btn-primary:hover, .btn-danger:hover {
+          background-color: var(--primary-color-dark);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-danger {
+          background-color: var(--primary-color);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-danger:hover {
+          background-color: var(--primary-color-dark);
+        }
+        
+        .btn-sm {
+          padding: 5px 10px;
+          font-size: 13px;
+        }
+        
+        .btn-group {
+          display: flex;
+          gap: 5px;
+        }
+        
+        .btn i {
+          margin-right: 5px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+          .dashboard-wrapper {
+            flex-direction: column;
+          }
+          
+          .dashboard-sidebar {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: -100%;
+            height: 100%;
+            z-index: 999;
+            overflow-y: auto;
+          }
+          
+          .dashboard-sidebar.active {
+            left: 0;
+          }
+          
+          .dashboard-toggle {
+            display: block;
+          }
+          
+          .dashboard-main {
+            margin-top: 60px; /* Space for the toggle button */
+          }
+          
+          .dashboard-header {
+            padding-left: 50px; /* Space for the toggle button */
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .search-form {
+            flex-direction: column;
+          }
+          
+          .search-form input,
+          .search-form button {
+            width: 100%;
+          }
+          
+          .dashboard-table {
+            display: block;
+            overflow-x: auto;
+          }
+          
+          .dashboard-section {
+            padding: 15px 10px;
+          }
+        }
+        
+        @media (max-width: 576px) {
+          .dashboard-header h1 {
+            font-size: 20px;
+          }
+          
+          .dashboard-section h2 {
+            font-size: 18px;
+          }
+        }
+        
+        /* Image preview */
+        .image-preview {
+          max-width: 100px;
+          max-height: 100px;
+          object-fit: cover;
+          border-radius: var(--border-radius);
+        }
+        
+        /* Status indicators */
+        .status-badge {
+          display: inline-block;
+          padding: 3px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+        
+        .status-active {
+          background-color: rgba(46, 204, 113, 0.2);
+          color: #27ae60;
+        }
+        
+        .status-pending {
+          background-color: rgba(243, 156, 18, 0.2);
+          color: #d35400;
+        }
+        
+        /* Alert Styles */
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            position: relative;
+            border-left: 4px solid transparent;
+        }
+        
+        .alert-success {
+          background-color: rgba(46, 204, 113, 0.1);
+          border-color: var(--success-color);
+          color: #27ae60;
+        }
+        
+        .alert-info {
+          background-color: rgba(52, 152, 219, 0.1);
+          border-color: var(--dashboard-primary);
+          color: var(--dashboard-primary);
+        }
+        
+        .alert-warning {
+          background-color: rgba(243, 156, 18, 0.1);
+          border-color: var(--warning-color);
+          color: #d35400;
+        }
+        
+        .alert-error,
+        .alert-danger {
+          background-color: rgba(231, 76, 60, 0.1);
+          border-color: var(--danger-color);
+          color: #c0392b;
+        }
+        
+        /* Utilities */
+        .text-center {
+          text-align: center;
+        }
+        
+        .mt-20 {
+          margin-top: 20px;
+        }
+        
+        .mb-20 {
+          margin-bottom: 20px;
+        }
+
+        /* Form group */
+        .form-group {
+          margin-bottom: 15px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<button id="sidebar-toggle" class="dashboard-toggle">
+    <i class="fas fa-bars"></i>
+</button>
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar">
+        <div class="dashboard-sidebar-header">
+            <h2>Hotel Management</h2>
+        </div>
+        <ul class="dashboard-nav">
+            <li class="dashboard-nav-item">
+                <a href="{{ path('app_dashboard') }}" class="dashboard-nav-link active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="dashboard-nav-item">
+                <a href="#analytics" class="dashboard-nav-link">
+                    <i class="fas fa-chart-line"></i> Analytiques
+                </a>
+            </li>
+            <li class="dashboard-nav-item">
+                <a href="#hotels" class="dashboard-nav-link">
+                    <i class="fas fa-hotel"></i> Hotels
+                </a>
+            </li>
+            <li class="dashboard-nav-item">
+                <a href="#rooms" class="dashboard-nav-link">
+                    <i class="fas fa-bed"></i> Rooms
+                </a>
+            </li>
+            <li class="dashboard-nav-item">
+                <a href="#reservations" class="dashboard-nav-link">
+                    <i class="fas fa-calendar-check"></i> Reservations
+                </a>
+            </li>
+            <li class="dashboard-nav-item">
+                <a href="#users" class="dashboard-nav-link">
+                    <i class="fas fa-users"></i> Users
+                </a>
+            </li>
+            <li class="dashboard-nav-item">
+                <a href="{{ path('app_hotel_list') }}" class="dashboard-nav-link">
+                    <i class="fas fa-list"></i> Hotel List
+                </a>
+            </li>
+            <li class="dashboard-nav-item">
+                <a href="{{ path('app_logout') }}" class="dashboard-nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <div class="dashboard-container">
+            <!-- Analytics Section -->
+            <div id="analytics" class="dashboard-section">
+                <div class="dashboard-header" style="padding: 10px 15px; margin-bottom: 15px;">
+                    <h1 style="font-size: 20px; margin: 0;">Analytics Dashboard</h1>
+                </div>
+                
+                <!-- Key Metrics Cards -->
+                <div class="analytics-cards">
+                    <div class="analytics-card card-hotels">
+                        <div class="analytics-card-icon">
+                            <i class="fas fa-hotel"></i>
+                        </div>
+                        <div class="analytics-card-value">{{ analytics.totalHotels }}</div>
+                        <div class="analytics-card-title">Hotels</div>
+                    </div>
+                    
+                    <div class="analytics-card card-rooms">
+                        <div class="analytics-card-icon">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div class="analytics-card-value">{{ analytics.totalRooms }}</div>
+                        <div class="analytics-card-title">Rooms</div>
+                    </div>
+                    
+                    <div class="analytics-card card-reservations">
+                        <div class="analytics-card-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="analytics-card-value">{{ analytics.totalReservations }}</div>
+                        <div class="analytics-card-title">Reservations</div>
+                    </div>
+                    
+                    <div class="analytics-card card-occupancy">
+                        <div class="analytics-card-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="analytics-card-value">{{ analytics.occupancyRate }}%</div>
+                        <div class="analytics-card-title">Occupancy Rate</div>
+                    </div>
+                </div>
+                
+                <!-- Charts -->
+                <div class="analytics-charts">
+                    <div class="chart-container">
+                        <h3>Monthly Reservations</h3>
+                        <canvas id="reservationsChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h3>Monthly Revenue (€)</h3>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="dashboard-section" style="margin-top: 15px;">
+                    <h3 style="font-size: 16px; margin-bottom: 10px;">Top Hotels by Reservations</h3>
+                    <table class="dashboard-table" style="margin-bottom: 10px;">
+                        <thead>
+                            <tr>
+                                <th>Hotel</th>
+                                <th>Number of Reservations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hotelId, hotel in analytics.topHotels %}
+                                <tr>
+                                    <td>{{ hotel.name }}</td>
+                                    <td>{{ hotel.count }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="2" class="text-center">No data available</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="dashboard-header">
+                <h1>Administration Dashboard</h1>
+            </div>
+            
+            {# Affichage des messages flash #}
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                        {{ message|trans }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+    <!-- Hotels Section -->
+    <div id="hotels" class="dashboard-section">
+        <h2>Hotels</h2>
+        <form method="get" class="search-form">
+            <input type="text" name="hotel_search" placeholder="Search hotel name" value="{{ search.hotel }}">
+            <button type="submit" class="btn">Search</button>
+            <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">Clear</a>
+        </form>
+
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hotel in hotels %}
+                    <tr>
+                        <td>{{ hotel.id }}</td>
+                        <td>{{ hotel.name }}</td>
+                        <td>{{ hotel.address }}</td>
+                        <td>
+                            {% if hotel.image %}
+                                <a href="{{ asset('uploads/hotels/' ~ hotel.image) }}" target="_blank">
+                                    <img src="{{ asset('uploads/hotels/' ~ hotel.image) }}" alt="{{ hotel.name }}" class="image-preview">
+                                </a>
+                            {% else %}
+                                <span class="status-badge status-pending">No image</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ path('app_dashboard') }}?edit_hotel={{ hotel.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{{ path('app_dashboard') }}?delete_hotel={{ hotel.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this hotel?');">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="text-center">No hotels found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="dashboard-section mt-20">
+            <h3>{% if editHotel %}Edit Hotel{% else %}Add New Hotel{% endif %}</h3>
+            <form method="post" enctype="multipart/form-data" class="dashboard-form">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" name="name" required value="{{ editHotel ? editHotel.name : '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Address:</label>
+                    <input type="text" name="address" required value="{{ editHotel ? editHotel.address : '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Image:</label>
+                    {% if editHotel and editHotel.image %}
+                        <div class="mb-20">
+                            <img src="{{ asset('uploads/hotels/' ~ editHotel.image) }}" alt="{{ editHotel.name }}" class="image-preview">
+                            <p>Current image: {{ editHotel.image }}</p>
+                        </div>
+                    {% endif %}
+                    <input type="file" name="image" accept="image/*">
+                    {% if editHotel and editHotel.image %}
+                        <small>Leave empty to keep the current image</small>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-success">{% if editHotel %}Update{% else %}Save{% endif %}</button>
+                {% if editHotel %}
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Rooms Section -->
+    <div id="rooms" class="dashboard-section">
+        <h2>Rooms</h2>
+        <form method="get" class="search-form">
+            <input type="text" name="room_search" placeholder="Search room number" value="{{ search.room }}">
+            <input type="text" name="room_hotel_search" placeholder="Search hotel name" value="{{ search.roomHotel }}">
+            <button type="submit" class="btn">Search</button>
+            <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">Clear</a>
+        </form>
+
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Room Number</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Hotel</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                    <tr>
+                        <td>{{ room.id }}</td>
+                        <td>{{ room.number }}</td>
+                        <td>
+                            <span class="status-badge status-active">{{ room.type }}</span>
+                        </td>
+                        <td>${{ room.price }}</td>
+                        <td>{{ room.hotel.name }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ path('app_dashboard') }}?edit_room={{ room.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{{ path('app_dashboard') }}?delete_room={{ room.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette chambre ?');">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6" class="text-center">No rooms found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="dashboard-section mt-20">
+            <h3>{% if editRoom %}Edit Room{% else %}Add New Room{% endif %}</h3>
+            {{ form_start(roomForm, {'attr': {'class': 'dashboard-form'}}) }}
+            {{ form_widget(roomForm) }}
+            <button type="submit" class="btn btn-success">{% if editRoom %}Update{% else %}Save{% endif %}</button>
+            {% if editRoom %}
+                <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+            {{ form_end(roomForm) }}
+        </div>
+    </div>
+
+    <!-- Reservations Section -->
+    <div id="reservations" class="dashboard-section">
+        <h2>Reservations</h2>
+        <form method="get" class="search-form">
+            <input type="text" name="res_hotel_search" placeholder="Search by hotel name" value="{{ search.resHotel }}">
+            <input type="text" name="res_room_search" placeholder="Search by room number" value="{{ search.resRoom }}">
+            <input type="text" name="res_user_search" placeholder="Search by guest email" value="{{ search.resUser }}">
+            <button type="submit" class="btn">Search</button>
+            <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">Clear</a>
+        </form>
+
+        <div style="overflow-x:auto;">
+        <table class="dashboard-table" style="min-width:1000px;">
+            <thead>
+                <tr>
+                    <th style="width:40px;">ID</th>
+                    <th style="width:140px;">Hotel</th>
+                    <th style="width:180px;">Address</th>
+                    <th style="width:80px;">Room Number</th>
+                    <th style="width:110px;">Room Type</th>
+                    <th style="width:90px;">Room Price</th>
+                    <th style="width:170px;">User</th>
+                    <th style="width:120px;">Check-in</th>
+                    <th style="width:120px;">Check-out</th>
+                    <th style="width:110px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for res in reservations %}
+                    <tr>
+                        <td>{{ res.id }}</td>
+                        <td>{{ res.room.hotel.name }}</td>
+                        <td>{{ res.room.hotel.address }}</td>
+                        <td>{{ res.room.number }}</td>
+                        <td>
+                            <span class="status-badge status-active">{{ res.room.type }}</span>
+                        </td>
+                        <td>${{ res.room.price }}</td>
+                        <td>{{ res.user.email }}</td>
+                        <td>{{ res.startDate|date('Y-m-d H:i') }}</td>
+                        <td>{{ res.endDate|date('Y-m-d H:i') }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ path('app_dashboard') }}?edit_reservation={{ res.id }}#reservations" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{{ path('dashboard_reservation_cancel', { id: res.id }) }}" class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to cancel this reservation?');">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="9" class="text-center">No reservations found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="dashboard-section mt-20">
+        <h3>{% if editReservation %}Edit reservation{% else %}Add a new reservation{% endif %}</h3>
+        {% include 'dashboard/_reservation_form.html.twig' with { editReservation: editReservation, rooms: rooms } %}
+    </div>
+
+    <!-- Users Section -->
+    <div id="users" class="dashboard-section">
+        <h2>Manage Users</h2>
+        <form method="get" class="search-form">
+            <input type="text" name="user_search" placeholder="Search by email" value="{{ search.user ?? '' }}">
+            <button type="submit" class="btn">Search</button>
+            <a href="{{ path('app_dashboard') }}" class="btn btn-secondary">Clear</a>
+        </form>
+
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Reservations</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users|default([]) %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% for role in user.roles %}
+                                <span class="status-badge status-active">{{ role }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ user.reservations|length }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ path('app_dashboard') }}?edit_user={{ user.id }}#users" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{{ path('app_dashboard') }}?delete_user={{ user.id }}#users" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="text-center">No users found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="dashboard-section mt-20">
+            <h3>{% if editUser %}Edit User{% else %}Add New User{% endif %}</h3>
+            <form method="post" class="dashboard-form">
+                {% if editUser %}
+                    <input type="hidden" name="user_id" value="{{ editUser.id }}">
+                {% endif %}
+                
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" name="email" required value="{{ editUser ? editUser.email : '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" name="password" {% if not editUser %}required{% endif %}>
+                    {% if editUser %}
+                        <small>Leave empty to keep the current password</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label>Roles:</label>
+                    <select name="roles[]" multiple class="form-control">
+                        <option value="ROLE_USER" {% if editUser and 'ROLE_USER' in editUser.roles %}selected{% endif %}>User</option>
+                        <option value="ROLE_ADMIN" {% if editUser and 'ROLE_ADMIN' in editUser.roles %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">{% if editUser %}Update{% else %}Save{% endif %}</button>
+                {% if editUser %}
+                    <a href="{{ path('app_dashboard') }}#users" class="btn btn-secondary">Cancel</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Data for charts
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const reservationsData = {{ analytics.monthlyReservations|json_encode|raw }};
+        const revenueData = {{ analytics.monthlyRevenue|json_encode|raw }};
+        
+        // Configuration des couleurs
+        const primaryColor = '#3498db';
+        const accentColor = '#e82574'; // Rose/fuchsia du site
+        
+        // Graphique des réservations mensuelles
+        const reservationsCtx = document.getElementById('reservationsChart').getContext('2d');
+        new Chart(reservationsCtx, {
+            type: 'bar',
+            data: {
+                labels: monthNames,
+                datasets: [{
+                    label: 'Reservations',
+                    data: reservationsData,
+                    backgroundColor: primaryColor,
+                    borderColor: primaryColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0 // Nombre entier uniquement
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Graphique des revenus mensuels
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: monthNames,
+                datasets: [{
+                    label: 'Revenue (€)',
+                    data: revenueData,
+                    backgroundColor: 'rgba(232, 37, 116, 0.2)',
+                    borderColor: accentColor,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: accentColor
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' €';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Navigation active dans la sidebar
+        const setActiveLink = () => {
+            const hash = window.location.hash || '#analytics';
+            const links = document.querySelectorAll('.dashboard-nav-link');
+            
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === hash) {
+                    link.classList.add('active');
+                }
+            });
+        };
+        
+        // Initialiser le lien actif au chargement
+        setActiveLink();
+        
+        // Mettre à jour le lien actif quand le hash change
+        window.addEventListener('hashchange', setActiveLink);
+        
+        // Toggle sidebar sur mobile
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.querySelector('.dashboard-sidebar');
+        
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Fermer la sidebar quand on clique sur un lien (sur mobile)
+            const navLinks = document.querySelectorAll('.dashboard-nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth < 992) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+{% endblock %}

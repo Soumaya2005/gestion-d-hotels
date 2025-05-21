@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sign in to your account{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .login-error-message {
+        background-color: rgba(232, 37, 116, 0.9); /* Pink color */
+        color: white;
+        padding: 12px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 500;
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 500px;
+    }
+    
+    .register-link {
+        text-align: center;
+        margin-top: 15px;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .register-link a {
+        color: #2b90d9; /* Same blue as Sign in link on registration page */
+        text-decoration: none;
+    }
+    
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 12px;
+        background-color: #e82574; /* Pink color */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+    
+    .btn-login:hover {
+        background-color: #bc1c5c; /* Darker pink on hover */
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <form method="post">
+        {% if error %}
+            <div class="login-error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        {% if app.user %}
+            <div class="mb-3">
+                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
+         <div class="container2">
+         <div class="forms-container">
+         <div class="signin-signup">
+         <div class=form>
+        <h1 class="h3 mb-3 font-weight-normal">Login to your account</h1>
+          <div class="input2-field">
+        <i class="fas fa-user"></i>
+        <label for="username">Email</label>
+        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus> </div>
+        <div class="input3-field"> 
+          <i class="fas fa-user"></i>  
+        <label for="password">Password</label>
+        <input type="password" name="_password" id="password"  autocomplete="current-password" required> </div>
+        <input type="hidden" name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}"
+        >
+
+        {#
+            Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+            See https://symfony.com/doc/current/security/remember_me.html
+
+            <div class="checkbox mb-3 ">
+                <input type="checkbox" name="_remember_me" id="_remember_me">
+                <label for="_remember_me">Remember me</label>
+            </div>
+        #}
+ <div class="btn3">
+        <button class="btn-login" type="submit">
+            Sign in
+        </button>
+   </div>
+   <div class="register-link">
+        Don't have an account? <a href="{{ path('app_register') }}">Register</a>
+   </div>
+      </div>   
+   </div>
+ </div>
+
+      <div class="panels-container">
+        <div class="panel left-panel">
+          <div class="content">
+            <h3>Welcome Back!</h3>
+            <p>
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Debitis,
+              ex ratione. Aliquid!
+              
+            </p>
+           
+          </div>
+      
+        </div>
+{% endblock %}

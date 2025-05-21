@@ -1,0 +1,38 @@
+{# Add/Edit reservation form for dashboard admin #}
+<form method="post" class="dashboard-form">
+    {% if editReservation %}
+        <input type="hidden" name="reservation_id" value="{{ editReservation.id }}">
+    {% endif %}
+
+    <div class="form-group">
+        <label for="clientName">Guest Name</label>
+        <input type="text" name="clientName" required placeholder="Enter guest name" value="{{ editReservation ? editReservation.clientName : '' }}">
+    </div>
+    <div class="form-group">
+        <label for="clientEmail">Guest Email</label>
+        <input type="email" name="clientEmail" required placeholder="Enter guest email" value="{{ editReservation ? editReservation.clientEmail : '' }}">
+    </div>
+    <div class="form-group">
+        <label for="startDate">Check-in Date</label>
+        <input type="datetime-local" name="startDate" required value="{{ editReservation ? editReservation.startDate|date('Y-m-d\\TH:i') : '' }}">
+    </div>
+    <div class="form-group">
+        <label for="endDate">Check-out Date</label>
+        <input type="datetime-local" name="endDate" required value="{{ editReservation ? editReservation.endDate|date('Y-m-d\\TH:i') : '' }}">
+    </div>
+    <div class="form-group">
+        <label for="room">Room</label>
+        <select name="room" required>
+            <option value="">-- Choose a room --</option>
+            {% for room in rooms %}
+                <option value="{{ room.id }}" {% if editReservation and editReservation.room.id == room.id %}selected{% endif %}>
+                    Room {{ room.number }} - {{ room.type }} (${{ room.price }})
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">{% if editReservation %}Update{% else %}Save{% endif %}</button>
+    {% if editReservation %}
+        <a href="{{ path('app_dashboard') }}#reservations" class="btn btn-secondary">Cancel</a>
+    {% endif %}
+</form>

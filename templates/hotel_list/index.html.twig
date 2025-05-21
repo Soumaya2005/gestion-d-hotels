@@ -1,0 +1,367 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hotel List{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* Styles spécifiques à la page Hotel Listing */
+    :root {
+        --primary-color: #e82574;
+        --accent-color: #e82574;
+        --accent-dark: #bc1c5c;
+        --text-color: #333;
+        --light-gray: #f5f7fa;
+        --dark-gray: #78716c;
+        --white: #ffffff;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --border-radius: 8px;
+    }
+    
+    .hotel-listing-page {
+        background-color: var(--light-gray);
+        min-height: 100vh;
+        padding: 20px;
+        font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+    }
+    
+    .hotel-listing-header {
+        background-color: var(--primary-color);
+        color: var(--white);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        margin-bottom: 30px;
+        box-shadow: var(--shadow);
+        text-align: center;
+        position: relative;
+    }
+    
+    .hotel-listing-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    
+    .hotel-listing-header p {
+        margin: 10px 0 0;
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+    
+    .back-home-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background-color: var(--accent-color);
+        color: var(--white);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 10px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .back-home-btn:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .search-container {
+        background-color: var(--white);
+        padding: 20px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 30px;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .search-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+    
+    .search-button {
+        background-color: var(--accent-color);
+        color: var(--white);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 12px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .search-button:hover {
+        background-color: var(--accent-dark);
+    }
+    
+    .clear-button {
+        background-color: var(--dark-gray);
+        color: var(--white);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 12px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .clear-button:hover {
+        background-color: #5d5853;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="hotel-listing-page">
+    <div class="hotel-listing-header">
+        <a href="{{ path('app_main') }}" class="back-home-btn">
+            ← Back to Home
+        </a>
+        <h1>Our Hotels</h1>
+        <p>Discover our selection of premium hotels for your perfect stay</p>
+    </div>
+
+    <div class="search-container">
+        <form method="get" action="{{ path('app_hotel_list') }}" class="search-form">
+            <input type="text" name="search" placeholder="Search by hotel name" value="{{ searchTerm|default('') }}" class="search-input">
+            <button type="submit" class="search-button">Search</button>
+            {% if searchTerm is not empty %}
+                <a href="{{ path('app_hotel_list') }}">
+                    <button type="button" class="clear-button">Clear</button>
+                </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="hotel-grid">
+        {% for hotel in hotels %}
+            <div class="hotel-card">
+                <div class="hotel-card-image">
+                    {% if hotel.image %}
+                        <img src="{{ asset('uploads/hotels/' ~ hotel.image) }}" alt="{{ hotel.name }}">
+                    {% else %}
+                        <div class="no-image">No image available</div>
+                    {% endif %}
+                </div>
+                <div class="hotel-card-details">
+                    <div class="hotel-info">
+                        <h3>{{ hotel.name }}</h3>
+                        <p class="hotel-address"><i class="fas fa-map-marker-alt"></i> {{ hotel.address }}</p>
+                    </div>
+                    <div class="hotel-action">
+                        <a href="{{ path('app_reservation_new', { hotelId: hotel.id }) }}" class="book-now-btn">
+                            Book Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="no-hotels">
+                <i class="fas fa-hotel"></i>
+                <p>No hotels found</p>
+                <p class="sub-text">Try adjusting your search criteria</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* Styles spécifiques pour les cartes d'hôtels */
+    .hotel-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+    
+    .hotel-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      
+    }
+    
+    .hotel-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .hotel-card-image {
+        height: 200px; /* Hauteur fixe pour toutes les images */
+        overflow: hidden;
+        position: relative;
+        flex: 0 0 auto; /* Ne pas étirer l'image */
+    }
+    
+    .hotel-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .hotel-card:hover .hotel-card-image img {
+        transform: scale(1.1);
+    }
+    
+    .no-image {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f0f0f0;
+        color: var(--dark-gray);
+        font-style: italic;
+    }
+    
+    .hotel-card-details {
+        padding: 20px;
+        flex: 1 1 auto; /* Prend l'espace disponible */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    .hotel-info {
+        margin-bottom: 10px;
+    }
+    
+    .hotel-action {
+        margin-top: auto; /* Pousse le bouton vers le bas */
+    }
+    
+    .hotel-card-details h3 {
+        margin: 0 0 10px 0;
+        color: var(--text-color);
+        font-size: 1.4rem;
+        /* Limiter à deux lignes avec ellipsis */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: 2.8rem; /* Hauteur fixe pour le titre */
+    }
+    
+    .hotel-address {
+        color: var(--dark-gray);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: flex-start;
+        gap: 5px;
+        /* Limiter à deux lignes avec ellipsis */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: 2.5rem; /* Hauteur fixe pour l'adresse */
+    }
+    
+    .hotel-address i {
+        margin-top: 3px;
+        flex-shrink: 0;
+    }
+    
+    .book-now-btn {
+        display: inline-block;
+        background-color: var(--accent-color);
+        color: var(--white) !important; /* Force la couleur du texte en blanc */
+        padding: 12px 20px;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+        width: 100%;
+        margin-top: 15px; /* Espace au-dessus du bouton */
+        font-size: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Ajoute une ombre pour le faire ressortir */
+        border: none;
+        position: relative; /* Pour les effets de survol */
+        z-index: 1; /* Assure que le bouton est au-dessus des autres éléments */
+    }
+    
+    .book-now-btn:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .no-hotels {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 50px;
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .no-hotels i {
+        font-size: 3rem;
+        color: var(--dark-gray);
+        margin-bottom: 20px;
+    }
+    
+    .no-hotels p {
+        font-size: 1.2rem;
+        color: var(--text-color);
+        margin: 0;
+    }
+    
+    .no-hotels .sub-text {
+        font-size: 0.9rem;
+        color: var(--dark-gray);
+        margin-top: 10px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hotel-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+        
+        .hotel-listing-header h1 {
+            font-size: 2rem;
+        }
+        
+        .hotel-listing-header p {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hotel-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .search-form {
+            flex-direction: column;
+        }
+        
+        .search-input, .search-button, .clear-button {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

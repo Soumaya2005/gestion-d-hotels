@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Book a Room{% endblock %}
+
+{% block body %}
+  <div class="reservation-2col-container">
+    <div class="reservation-2col-left">
+      {% if hotel %}
+        {% if hotel.image %}
+          <img src="{{ asset('uploads/hotels/' ~ hotel.image) }}" alt="{{ hotel.name }}" class="reservation-2col-img">
+        {% endif %}
+        <h3 class="reservation-2col-title">{{ hotel.name }}</h3>
+        <p class="reservation-2col-address">{{ hotel.address }}</p>
+      {% endif %}
+    </div>
+    <div class="reservation-2col-right">
+      <div class="reservation-2col-card">
+        <h2 class="reservation-2col-card-title">Book a Room</h2>
+
+        {# Affichage des messages flash #}
+        {% for message in app.flashes('error') %}
+          <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('success') %}
+          <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        <form method="POST" class="reservation-2col-form">
+          <div>
+            <label for="clientName">Name</label>
+            <input type="text" name="clientName" id="clientName" required>
+          </div>
+          <div>
+            <label for="clientEmail">Email</label>
+            <input type="email" id="clientEmail" value="{{ app.user.userIdentifier }}" disabled>
+          </div>
+          <div>
+            <label for="startDate">Check-in Date</label>
+            <input type="datetime-local" name="startDate" id="startDate" required>
+          </div>
+          <div>
+            <label for="endDate">Check-out Date</label>
+            <input type="datetime-local" name="endDate" id="endDate" required>
+          </div>
+          <div>
+            <label for="room">Room</label>
+            <select name="room" id="room" required>
+              <option value="">-- Select a room --</option>
+              {% for room in availableRooms %}
+                <option value="{{ room.id }}">Room {{ room.number }} - {{ room.type }} ({{ room.price }} €)</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="reservation-form-actions">
+            <button type="submit" class="btn reservation-btn-main">Book</button>
+            <a href="{{ path('app_hotel_list') }}" class="btn reservation-btn-cancel">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

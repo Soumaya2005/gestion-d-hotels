@@ -1,0 +1,222 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create your account{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .register-container {
+        background-image: url('/images/h1.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    .register-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+    }
+    
+    .register-form-container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .register-form-container h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .form-group input:focus {
+        border-color: #2b90d9;
+        outline: none;
+    }
+    
+    .btn-register {
+        width: 100%;
+        padding: 12px;
+        background-color: #e82574; /* Couleur rose */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
+    
+    .btn-register:hover {
+        background-color: #bc1c5c; /* Rose plus foncé au survol */
+        transform: translateY(-2px);
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+    
+    .login-link a {
+        color: #2b90d9;
+        text-decoration: none;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Styling for form rows (side by side fields) */
+    .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 0;
+    }
+    
+    .form-row .form-group {
+        flex: 1;
+    }
+    
+    /* Styling for checkbox */
+    .terms-checkbox {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .terms-checkbox input[type="checkbox"] {
+        margin-right: 10px;
+        width: auto;
+    }
+    
+    .terms-checkbox label {
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+    
+    /* Textarea styling */
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        resize: vertical;
+    }
+    
+    /* Select styling */
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        background-color: white;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .register-form-container {
+            width: 90%;
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+ 
+{% block body %}
+<div class="register-container">
+    <div class="register-form-container">
+        <h1>Create an Account</h1>
+        
+        {{ form_errors(registrationForm) }}  
+        {{ form_start(registrationForm) }}  
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ registrationForm.firstName.vars.id }}">First Name</label>
+                {{ form_widget(registrationForm.firstName) }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ registrationForm.lastName.vars.id }}">Last Name</label>
+                {{ form_widget(registrationForm.lastName) }}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ registrationForm.email.vars.id }}">Email</label>
+            {{ form_widget(registrationForm.email) }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ registrationForm.phone.vars.id }}">Phone</label>
+            {{ form_widget(registrationForm.phone) }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ registrationForm.gender.vars.id }}">Gender</label>
+            {{ form_widget(registrationForm.gender) }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ registrationForm.plainPassword.vars.id }}">Password</label>
+            {{ form_widget(registrationForm.plainPassword) }}
+        </div>
+        
+        <div class="form-group terms-checkbox">
+            {{ form_widget(registrationForm.agreeTerms) }}
+            <label for="{{ registrationForm.agreeTerms.vars.id }}">{{ registrationForm.agreeTerms.vars.label }}</label>
+        </div>
+        
+        <button type="submit" class="btn-register">Register</button>
+        
+        <div class="login-link">
+            Already have an account? <a href="{{ path('app_login') }}">Sign in</a>
+        </div>
+        
+        {{ form_end(registrationForm) }}
+    </div>
+</div>
+
+{% endblock %}

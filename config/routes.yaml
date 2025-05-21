@@ -1,5 +1,13 @@
 controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
-    type: attribute
+  resource:
+    path: ../src/Controller/
+    namespace: App\Controller
+  type: attribute
+
+dashboard:
+  path: /dashboard
+  controller: App\Controller\DashboardController::index
+
+reservation_page:
+  path: /reservation
+  controller: App\Controller\ReservationController::index
